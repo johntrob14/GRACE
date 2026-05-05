@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""Evaluate one (concept, method, layer, coef) configuration."""
+"""Evaluate one (concept, method, layer, coef) configuration.
+
+Generation and judging run in two phases. The steered model is freed before
+the judge is loaded so the two never share GPU residency.
+"""
 import argparse
 import json
 
-from grace.eval.judge import LocalJudge
-from grace.eval.runner import evaluate_one
+from grace.eval.judge import LocalJudge, clear_local_judge_cache, free_gpu_memory
+from grace.eval.runner import generate_responses_one, score_responses_one
 from grace.steering import load_model
 
 
@@ -25,16 +29,37 @@ def main():
     args = p.parse_args()
 
     model, tokenizer = load_model(args.model)
-    judge = LocalJudge(model_name=args.judge_model)
+    try:
+        generate_responses_one(
+            model, tokenizer,
+            model_name=args.model, concept=args.concept, method=args.method,
+            layer=args.layer, coef=args.coef,
+            judge_tag=args.judge_tag, n_questions=args.questions, out_root=args.out_root,
+            vectors_root=args.vectors_root,
+            overwrite=args.overwrite,
+        )
+    finally:
+        if hasattr(model, "cpu"):
+            try:
+                model.cpu()
+            except Exception:
+                pass
+        del model, tokenizer
+        free_gpu_memory()
 
-    summary = evaluate_one(
-        model, tokenizer, judge,
-        model_name=args.model, concept=args.concept, method=args.method,
-        layer=args.layer, coef=args.coef,
-        judge_tag=args.judge_tag, n_questions=args.questions, out_root=args.out_root,
-        vectors_root=args.vectors_root,
-        overwrite=args.overwrite,
-    )
+    judge = LocalJudge(model_name=args.judge_model)
+    try:
+        summary = score_responses_one(
+            judge,
+            model_name=args.model, concept=args.concept, method=args.method,
+            layer=args.layer, coef=args.coef,
+            judge_tag=args.judge_tag, out_root=args.out_root,
+            overwrite=args.overwrite,
+        )
+    finally:
+        del judge
+        clear_local_judge_cache()
+
     print(json.dumps(summary, indent=2))
 
 

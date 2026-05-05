@@ -4,11 +4,12 @@
 rest of the package stays importable without it.
 """
 
-from grace.search.grid import grid_search
+from grace.search.grid import generate_grid, score_grid
 from grace.search.tpe_utils import build_results_cache, restrict_to_top_k_layers
 
 __all__ = [
-    "grid_search",
+    "generate_grid",
+    "score_grid",
     "build_results_cache",
     "restrict_to_top_k_layers",
     "optuna_search",

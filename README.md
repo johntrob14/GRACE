@@ -108,3 +108,8 @@ prints a per-concept recommendation. See
 - The figure file `Images/per-model-gran-steerabilitty.png` keeps the typo
   ("steerabilitty") in its filename to match the paper's `\includegraphics`
   reference.
+
+## Acknowledgements
+
+- This repository was originally based on the [PersonaVectors codebase](https://github.com/safety-research/persona_vectors).
+- Claude Code was used throughout the development of this project.

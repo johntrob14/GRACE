@@ -17,6 +17,7 @@ interface so the eval runner can swap backends without knowing which one it has.
 """
 from __future__ import annotations
 
+import gc
 import math
 import os
 import re
@@ -37,6 +38,36 @@ def _load_local_judge(model_name: str = "google/gemma-3-12b-it"):
     model.eval()
     _local_judge_cache[model_name] = (model, tokenizer)
     return model, tokenizer
+
+
+def clear_local_judge_cache() -> None:
+    """Drop all cached local judge models so the GPU memory they hold is reclaimed.
+
+    Eval scripts run generation and judging as separate phases (steered model
+    freed before the judge loads, judge freed before the next phase). Call this
+    at the end of the judging phase to release the judge's GPU residency.
+    """
+    if not _local_judge_cache:
+        return
+    for key in list(_local_judge_cache.keys()):
+        model, tokenizer = _local_judge_cache[key]
+        if hasattr(model, "cpu"):
+            try:
+                model.cpu()
+            except Exception:
+                pass
+        del model, tokenizer
+    _local_judge_cache.clear()
+    free_gpu_memory()
+
+
+def free_gpu_memory() -> None:
+    """Run gc + cuda empty_cache. Caller is responsible for `del`-ing references first."""
+    gc.collect()
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
 
 
 def _parse_int_in_range(text: str, lo: int = 0, hi: int = 100) -> float | None:

@@ -1,9 +1,18 @@
 """End-to-end eval for one (concept, method, layer, coef) configuration.
 
-Generates responses on the held-out evaluation question set and scores each
-with the configured judge along two axes (concept score, coherence). The
-primary steering utility ``U_c`` reported throughout the paper is the
-arithmetic mean of these two (paper §A.1, eq. 4).
+Generation and judging are separated into two phases that the caller drives
+sequentially with explicit GPU-memory cleanup in between. The motivating
+constraint: the steered model and the local judge are both large transformer
+models, and on a single GPU they shouldn't reside in memory at the same time.
+
+- ``generate_responses_one`` writes a per_sample CSV with the steered model's
+  answers and empty score columns. It does not load or use the judge.
+- ``score_responses_one`` reads that per_sample CSV, fills in concept and
+  coherence scores via the judge, rewrites the per_sample CSV with scores, and
+  writes the summary CSV.
+
+The primary steering utility ``U_c`` reported throughout the paper is the
+arithmetic mean of concept score and coherence (paper §A.1, eq. 4).
 
 Outputs two CSVs per (concept, method, layer, coef):
 
@@ -30,9 +39,11 @@ from pathlib import Path
 import torch
 
 from grace.eval.generate import generate_responses
-from grace.eval.judge import LocalJudge, score_responses
+from grace.eval.judge import score_responses
 from grace.eval.prompts import COHERENCE_PROMPT, build_concept_prompt
 from grace.paths import steering_eval_dir, vector_path
+
+_PER_SAMPLE_HEADER = ["question_id", "question", "answer", "concept_score_raw", "coherence_raw", "utility"]
 
 
 def _load_concept_eval(concept: str, root: Path = Path("concepts/gpt-5/eval")) -> dict:
@@ -68,10 +79,18 @@ def _load_steering_vector(
     return vectors[layer]
 
 
-def evaluate_one(
+def _eval_paths(
+    model_name: str, concept: str, method: str, layer: int, coef: float,
+    judge_tag: str, out_root: Path | str,
+) -> tuple[Path, Path]:
+    out_dir = steering_eval_dir(model_name, judge_tag, concept, root=out_root)
+    tag = f"{concept}_{method}_layer{layer}_coef{coef}"
+    return out_dir / f"{tag}_per_sample.csv", out_dir / f"{tag}_summary.csv"
+
+
+def generate_responses_one(
     model,
     tokenizer,
-    judge,
     *,
     model_name: str,
     concept: str,
@@ -84,7 +103,12 @@ def evaluate_one(
     out_root: Path | str = "results/steering_evaluations",
     vectors_root: Path | str = "vectors",
     overwrite: bool = False,
-) -> dict:
+) -> Path:
+    """Generate steered responses and write the per_sample CSV with empty score columns.
+
+    No judge is used. Pair this with a later call to ``score_responses_one`` after
+    the steered model has been freed and the judge has been loaded.
+    """
     if layer < 1:
         raise ValueError(
             f"layer must be >= 1 (hidden_states convention; layer 0 is the "
@@ -92,15 +116,11 @@ def evaluate_one(
             f"Got layer={layer}."
         )
 
-    out_dir = steering_eval_dir(model_name, judge_tag, concept, root=out_root)
-    tag = f"{concept}_{method}_layer{layer}_coef{coef}"
-    per_sample_path = out_dir / f"{tag}_per_sample.csv"
-    summary_path = out_dir / f"{tag}_summary.csv"
-    if not overwrite and per_sample_path.exists() and summary_path.exists():
-        return _read_summary_csv(summary_path)
+    per_sample_path, _ = _eval_paths(model_name, concept, method, layer, coef, judge_tag, out_root)
+    if not overwrite and per_sample_path.exists():
+        return per_sample_path
 
     spec = _load_concept_eval(concept)
-    rubric = spec["eval_prompt"]
     questions = spec["questions"]
     if n_questions is not None:
         questions = questions[:n_questions]
@@ -112,8 +132,48 @@ def evaluate_one(
         max_new_tokens=max_new_tokens,
     )
 
-    concept_prompts = [build_concept_prompt(concept, rubric, q, a) for q, a in zip(questions, responses)]
-    coherence_prompts = [COHERENCE_PROMPT.format(question=q, answer=a) for q, a in zip(questions, responses)]
+    per_sample_path.parent.mkdir(parents=True, exist_ok=True)
+    with per_sample_path.open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(_PER_SAMPLE_HEADER)
+        for i, (q, a) in enumerate(zip(questions, responses)):
+            w.writerow([i, q, a, "", "", ""])
+    return per_sample_path
+
+
+def score_responses_one(
+    judge,
+    *,
+    model_name: str,
+    concept: str,
+    method: str,
+    layer: int,
+    coef: float,
+    judge_tag: str = "judge_gemma3_12b",
+    out_root: Path | str = "results/steering_evaluations",
+    overwrite: bool = False,
+) -> dict:
+    """Read the per_sample CSV produced by ``generate_responses_one``, fill in
+    concept + coherence scores, and write the summary CSV.
+
+    Skips work if the summary CSV already exists and ``overwrite`` is False.
+    """
+    per_sample_path, summary_path = _eval_paths(model_name, concept, method, layer, coef, judge_tag, out_root)
+    if not overwrite and summary_path.exists():
+        return _read_summary_csv(summary_path)
+    if not per_sample_path.exists():
+        raise FileNotFoundError(
+            f"{per_sample_path} not found; run generate_responses_one for this config first."
+        )
+
+    spec = _load_concept_eval(concept)
+    rubric = spec["eval_prompt"]
+
+    rows = list(csv.DictReader(per_sample_path.open()))
+    questions = [r["question"] for r in rows]
+    answers = [r["answer"] for r in rows]
+    concept_prompts = [build_concept_prompt(concept, rubric, q, a) for q, a in zip(questions, answers)]
+    coherence_prompts = [COHERENCE_PROMPT.format(question=q, answer=a) for q, a in zip(questions, answers)]
     concept_scores = score_responses(judge, concept_prompts)
     coherence_scores = score_responses(judge, coherence_prompts)
     utility_per_q = [
@@ -121,12 +181,10 @@ def evaluate_one(
         for c, h in zip(concept_scores, coherence_scores)
     ]
 
-    out_dir.mkdir(parents=True, exist_ok=True)
-
     with per_sample_path.open("w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["question_id", "question", "answer", "concept_score_raw", "coherence_raw", "utility"])
-        for i, (q, a, cs, ch, u) in enumerate(zip(questions, responses, concept_scores, coherence_scores, utility_per_q)):
+        w.writerow(_PER_SAMPLE_HEADER)
+        for i, (q, a, cs, ch, u) in enumerate(zip(questions, answers, concept_scores, coherence_scores, utility_per_q)):
             w.writerow([i, q, a, cs, ch, u])
 
     valid_u = [u for u in utility_per_q if u is not None]
@@ -145,7 +203,3 @@ def evaluate_one(
         w.writerow(list(summary.keys()))
         w.writerow(list(summary.values()))
     return summary
-
-
-def get_default_judge() -> LocalJudge:
-    return LocalJudge()

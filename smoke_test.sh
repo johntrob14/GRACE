@@ -63,34 +63,31 @@ for c in "${CONCEPTS[@]}"; do
   test -f "concepts/gpt-5/extract/$c.json" || { echo "Missing concepts/gpt-5/extract/$c.json"; exit 1; }
 done
 
-# NOTE: [1], [2], [3] commented out so a re-run can resume from [4] using a
-# previously-populated SMOKE_ROOT. Re-enable when you want a clean from-scratch run.
-#
-# echo "=== [1/9] Extract activations (PL + RA) for both concepts"
-# for c in "${CONCEPTS[@]}"; do
-#   $PY scripts/02_extract_activations.py \
-#     --model "$MODEL" --concept "$c" \
-#     --questions "$QUESTIONS" \
-#     --out-root "$ACT_ROOT"
-# done
-#
-# echo "=== [2/9] Compute per-layer statistics"
-# for c in "${CONCEPTS[@]}"; do
-#   $PY scripts/03_compute_statistics.py \
-#     --model "$MODEL" --concept "$c" \
-#     --activations-root "$ACT_ROOT" \
-#     --out-root "$STAT_ROOT"
-# done
-#
-# echo "=== [3/9] Train all 3 vector variants"
-# for c in "${CONCEPTS[@]}"; do
-#   for m in pv unit_mean cluster; do
-#     $PY scripts/04_train_vectors.py \
-#       --model "$MODEL" --concept "$c" --method "$m" \
-#       --activations-root "$ACT_ROOT" \
-#       --vectors-root "$VEC_ROOT"
-#   done
-# done
+echo "=== [1/9] Extract activations (PL + RA) for both concepts"
+for c in "${CONCEPTS[@]}"; do
+  $PY scripts/02_extract_activations.py \
+    --model "$MODEL" --concept "$c" \
+    --questions "$QUESTIONS" \
+    --out-root "$ACT_ROOT"
+done
+
+echo "=== [2/9] Compute per-layer statistics"
+for c in "${CONCEPTS[@]}"; do
+  $PY scripts/03_compute_statistics.py \
+    --model "$MODEL" --concept "$c" \
+    --activations-root "$ACT_ROOT" \
+    --out-root "$STAT_ROOT"
+done
+
+echo "=== [3/9] Train all 3 vector variants"
+for c in "${CONCEPTS[@]}"; do
+  for m in pv unit_mean cluster; do
+    $PY scripts/04_train_vectors.py \
+      --model "$MODEL" --concept "$c" --method "$m" \
+      --activations-root "$ACT_ROOT" \
+      --vectors-root "$VEC_ROOT"
+  done
+done
 
 echo "=== [4/9] Single (layer, coef) eval"
 $PY scripts/07_evaluate_one.py \

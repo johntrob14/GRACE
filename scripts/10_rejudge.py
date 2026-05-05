@@ -11,7 +11,7 @@ import argparse
 import csv
 from pathlib import Path
 
-from grace.eval.judge import BedrockJudge, LocalJudge, OpenAIJudge, score_responses
+from grace.eval.judge import BedrockJudge, LocalJudge, OpenAIJudge, clear_local_judge_cache, score_responses
 from grace.eval.prompts import COHERENCE_PROMPT, build_concept_prompt
 
 
@@ -62,28 +62,33 @@ def main():
     out_dir = responses_dir.parent.parent / out_tag / responses_dir.name
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    for src in sorted(responses_dir.glob(f"{args.concept}_*_per_sample.csv")):
-        dst = out_dir / src.name
-        if not args.overwrite and dst.exists():
-            print(f"[skip] {dst} (exists; pass --overwrite to re-score)")
-            continue
-        rows = list(csv.DictReader(src.open()))
-        if not rows:
-            continue
-        questions = [r["question"] for r in rows]
-        answers = [r["answer"] for r in rows]
-        concept_prompts = [build_concept_prompt(args.concept, args.rubric, q, a) for q, a in zip(questions, answers)]
-        coherence_prompts = [COHERENCE_PROMPT.format(question=q, answer=a) for q, a in zip(questions, answers)]
-        cs = score_responses(judge, concept_prompts)
-        ch = score_responses(judge, coherence_prompts)
+    try:
+        for src in sorted(responses_dir.glob(f"{args.concept}_*_per_sample.csv")):
+            dst = out_dir / src.name
+            if not args.overwrite and dst.exists():
+                print(f"[skip] {dst} (exists; pass --overwrite to re-score)")
+                continue
+            rows = list(csv.DictReader(src.open()))
+            if not rows:
+                continue
+            questions = [r["question"] for r in rows]
+            answers = [r["answer"] for r in rows]
+            concept_prompts = [build_concept_prompt(args.concept, args.rubric, q, a) for q, a in zip(questions, answers)]
+            coherence_prompts = [COHERENCE_PROMPT.format(question=q, answer=a) for q, a in zip(questions, answers)]
+            cs = score_responses(judge, concept_prompts)
+            ch = score_responses(judge, coherence_prompts)
 
-        with dst.open("w", newline="") as f:
-            w = csv.writer(f)
-            w.writerow(["question_id", "question", "answer", "concept_score_raw", "coherence_raw", "utility"])
-            for i, (q, a, c, h) in enumerate(zip(questions, answers, cs, ch)):
-                u = ((c + h) / 2) if (c is not None and h is not None) else None
-                w.writerow([i, q, a, c, h, u])
-        print(f"Wrote {dst}")
+            with dst.open("w", newline="") as f:
+                w = csv.writer(f)
+                w.writerow(["question_id", "question", "answer", "concept_score_raw", "coherence_raw", "utility"])
+                for i, (q, a, c, h) in enumerate(zip(questions, answers, cs, ch)):
+                    u = ((c + h) / 2) if (c is not None and h is not None) else None
+                    w.writerow([i, q, a, c, h, u])
+            print(f"Wrote {dst}")
+    finally:
+        del judge
+        if args.backend == "local":
+            clear_local_judge_cache()
 
 
 if __name__ == "__main__":

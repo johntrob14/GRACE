@@ -1,6 +1,6 @@
 """Optuna TPE search over (layer, coefficient) — paper §4.
 
-50 trials × 3 seeds is the default; see configs/search/tpe_*.yaml.
+50 trials x 3 seeds is the default; see configs/search/tpe_*.yaml.
 The search supports three layer-restriction modes:
 
 - `unconstrained`: TPE samples from `layers` (the model's full layer range).
@@ -12,6 +12,15 @@ The search supports three layer-restriction modes:
 The caller passes the layer set in `layers`; this module is agnostic to how
 that set was selected. It just runs TPE and writes a trial-history CSV per
 seed so the notebooks can compute ``T_{95}`` and convergence curves.
+
+Per-trial memory protocol
+-------------------------
+Each trial runs the steered-model generation phase and the judge scoring phase
+separately, fully releasing one model's GPU residency before the next loads.
+Concretely the objective does: load steered model -> generate per_sample CSV
+-> free -> load judge -> score + write summary -> free. This reloads both
+models on every trial; the search trades load time for the guarantee that
+neither model is resident while the other is doing work.
 """
 from __future__ import annotations
 
@@ -20,17 +29,17 @@ from pathlib import Path
 
 import optuna
 
+from grace.eval.judge import LocalJudge, clear_local_judge_cache, free_gpu_memory
 from grace.eval.results import build_results_cache
-from grace.eval.runner import evaluate_one
+from grace.eval.runner import generate_responses_one, score_responses_one
 from grace.paths import optuna_dir
+from grace.steering import load_model
 
 
 def optuna_search(
-    model,
-    tokenizer,
-    judge,
     *,
     model_name: str,
+    judge_model_name: str,
     concept: str,
     method: str,
     layers: list[int],
@@ -47,8 +56,9 @@ def optuna_search(
 ) -> list[dict]:
     """Run TPE for `n_seeds` seeds; return per-trial history rows for all seeds.
 
-    Per-config eval CSVs reuse cache by default (skip-if-exists). Pass
-    `overwrite=True` to re-evaluate and overwrite cached configs.
+    Each trial loads the steered model, generates, frees the model, loads the
+    judge, scores, then frees the judge. Per-config summaries reuse cache by
+    default (skip-if-exists). Pass `overwrite=True` to re-evaluate.
     """
     out_dir = optuna_dir(model_name, concept, method, mode, root=out_root)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -75,14 +85,39 @@ def optuna_search(
             key = (layer, coef)
             if key in cache:
                 return cache[key]
-            summary = evaluate_one(
-                model, tokenizer, judge,
-                model_name=model_name, concept=concept, method=method,
-                layer=layer, coef=coef,
-                judge_tag=judge_tag, n_questions=n_questions, out_root=eval_root,
-                vectors_root=vectors_root,
-                overwrite=overwrite,
-            )
+
+            model, tokenizer = load_model(model_name)
+            try:
+                generate_responses_one(
+                    model, tokenizer,
+                    model_name=model_name, concept=concept, method=method,
+                    layer=layer, coef=coef,
+                    judge_tag=judge_tag, n_questions=n_questions, out_root=eval_root,
+                    vectors_root=vectors_root,
+                    overwrite=overwrite,
+                )
+            finally:
+                if hasattr(model, "cpu"):
+                    try:
+                        model.cpu()
+                    except Exception:
+                        pass
+                del model, tokenizer
+                free_gpu_memory()
+
+            judge = LocalJudge(model_name=judge_model_name)
+            try:
+                summary = score_responses_one(
+                    judge,
+                    model_name=model_name, concept=concept, method=method,
+                    layer=layer, coef=coef,
+                    judge_tag=judge_tag, out_root=eval_root,
+                    overwrite=overwrite,
+                )
+            finally:
+                del judge
+                clear_local_judge_cache()
+
             value = summary.get("mean_utility")
             if value is None:
                 return 0.0

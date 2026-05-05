@@ -3,23 +3,32 @@
 
 Three search modes: ``unconstrained``, ``top15_pl``, ``union_pl_ra``.
 The mode determines which layers TPE samples from; everything else is shared.
+
+Each trial loads the steered model, generates, frees the model, loads the
+judge, scores, and frees the judge — generation and judging never share GPU
+residency. See ``grace.search.optuna_search`` for the per-trial protocol.
 """
 import argparse
 
 import yaml
 
+from grace.config import MODEL_CONFIGS
 from grace.diagnostics.alignment import alignment_per_layer, top_k_layers
-from grace.eval.judge import LocalJudge
 from grace.search.optuna_search import optuna_search
-from grace.steering import load_model
 
 
-def _layers_for_mode(model, mode: str, model_name: str, concept: str, statistics_root: str) -> list[int]:
-    n_layers = (
-        model.config.num_hidden_layers
-        if hasattr(model.config, "num_hidden_layers")
-        else model.config.text_config.num_hidden_layers
-    )
+def _num_layers_from_registry(model_name: str) -> int:
+    cfg = MODEL_CONFIGS.get(model_name)
+    if cfg is None:
+        raise KeyError(
+            f"{model_name!r} not in grace.config.MODEL_CONFIGS; add it (with num_layers) "
+            f"or extend this script to load the model briefly."
+        )
+    return int(cfg["num_layers"])
+
+
+def _layers_for_mode(model_name: str, mode: str, concept: str, statistics_root: str) -> list[int]:
+    n_layers = _num_layers_from_registry(model_name)
     full = list(range(1, n_layers + 1))
     if mode == "unconstrained":
         return full
@@ -76,13 +85,11 @@ def main():
     out_root = cfg.get("out_root", "results/optuna")
     vectors_root = cfg.get("vectors_root", "vectors")
 
-    model, tokenizer = load_model(model_name)
-    layers = _layers_for_mode(model, mode, model_name, args.concept, statistics_root)
-    judge = LocalJudge(model_name=judge_model)
+    layers = _layers_for_mode(model_name, mode, args.concept, statistics_root)
 
     history = optuna_search(
-        model, tokenizer, judge,
-        model_name=model_name, concept=args.concept, method=method,
+        model_name=model_name, judge_model_name=judge_model,
+        concept=args.concept, method=method,
         layers=layers, coefs=coefs, mode=mode,
         n_trials=n_trials, n_seeds=n_seeds,
         judge_tag=judge_tag, n_questions=questions,
