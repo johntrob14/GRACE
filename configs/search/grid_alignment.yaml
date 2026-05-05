@@ -1,0 +1,9 @@
+# Paper §3 grid sweep: every-5-layers × {1, 2, 3} coefficients.
+model: google/gemma-3-27b-it
+method: pv
+layer_step: 5
+coefs: [1.0, 2.0, 3.0]
+judge_tag: judge_gemma3_12b
+judge_model: google/gemma-3-12b-it
+questions: 100
+out_root: results/steering_evaluations

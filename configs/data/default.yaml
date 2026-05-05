@@ -1,0 +1,10 @@
+# Concept-data generation defaults. The `description` field is the
+# one-paragraph human-written concept definition that GPT-5 conditions on.
+generator: gpt-5
+generator_options:
+  reasoning_effort: low
+  max_tokens: 12000
+n_extract_questions: 100
+n_eval_questions: 100
+n_prompt_pairs: 5
+seed: 0

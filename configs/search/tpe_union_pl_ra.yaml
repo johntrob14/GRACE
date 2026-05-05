@@ -1,0 +1,14 @@
+# Paper §6 representational-fragmentation remedy: search constrained to
+# the union of top-15 PL ∪ top-15 RA alignment layers.
+model: google/gemma-3-27b-it
+method: pv
+mode: union_pl_ra
+coefs: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]
+n_trials: 50
+n_seeds: 3
+judge_tag: judge_gemma3_12b
+judge_model: google/gemma-3-12b-it
+questions: 100
+statistics_root: results/statistics
+eval_root: results/steering_evaluations
+out_root: results/optuna

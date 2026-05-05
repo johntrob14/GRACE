@@ -1,0 +1,5 @@
+# Cross-judge robustness (paper §B): GPT-4.1-mini via OpenAI API.
+# Requires OPENAI_API_KEY in .env.
+backend: openai
+judge_model: gpt-4.1-mini
+judge_tag: judge_gpt4_1_mini

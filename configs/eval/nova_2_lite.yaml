@@ -1,0 +1,6 @@
+# Cross-judge robustness (paper §B): Amazon Nova-Lite via AWS Bedrock.
+# Requires the optional `bedrock` extra: uv sync --extra bedrock
+# Requires AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION in .env.
+backend: bedrock
+judge_model: amazon.nova-lite-v1:0
+judge_tag: judge_nova_2_lite

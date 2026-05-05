@@ -1,0 +1,43 @@
+[project]
+name = "grace"
+version = "0.1.0"
+description = "GRACE: Granularity- and Representation-Aware Concept Engineering for rank-1 activation steering."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "accelerate>=1.12.0",
+    "ipykernel>=7.1.0",
+    "matplotlib>=3.10.8",
+    "numpy>=2.0",
+    "openai>=2.15.0",
+    "optuna>=4.0",
+    "pandas>=2.3.3",
+    "pyarrow>=22.0.0",
+    "pyyaml>=6.0",
+    "scipy>=1.13",
+    "seaborn>=0.13.2",
+    "torch==2.6.0+cu124",
+    "tqdm>=4.67.1",
+    "transformers>=4.57.3",
+]
+
+[project.optional-dependencies]
+bedrock = [
+    "boto3[crt]>=1.35",
+    "botocore[crt]>=1.35",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["grace*"]
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu124" }

@@ -1,0 +1,27 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.ipynb_checkpoints/
+.DS_Store
+*.tex
+
+# Local Claude Code context — not committed.
+CLAUDE.local.md
+
+# Heavy artifacts: regenerate via the pipeline scripts.
+activations/
+vectors/
+results/diagnostics/
+results/optuna/*/trial_history_*.csv
+results/steering_evaluations/**/*_per_sample.csv
+
+# Build / editor noise.
+build/
+dist/
+.cache/
+.idea/
+.vscode/
+results/
