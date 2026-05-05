@@ -30,7 +30,7 @@ to help.
 - **`smoke_test.sh`** — full mini-pipeline on Gemma-2-2B + Gemma-3-12B judge, two concepts, ~15 min on one GPU.
 
 ## Setup
-
+This repository relies on the uv package manager for python, available [here](https://docs.astral.sh/uv/getting-started/installation/#installation-methods).
 ```bash
 uv sync
 cp .env.example .env
