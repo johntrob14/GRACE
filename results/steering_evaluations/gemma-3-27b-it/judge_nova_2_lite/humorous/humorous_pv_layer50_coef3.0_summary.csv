@@ -1,0 +1,3 @@
+metric,level,mean,std,count
+concept_score_raw,overall,56.0,30.797727188868986,100
+coherence_raw,overall,43.42,32.746657844732795,100
