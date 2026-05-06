@@ -1,0 +1,319 @@
+{
+  "per_layer": {
+    "0": {
+      "eta_sq_prompt": 0.0769511061073599,
+      "eta_sq_question": 0.3113737538111506,
+      "eta_sq_interaction": 0.6116760684479439
+    },
+    "1": {
+      "eta_sq_prompt": 0.1031873873585552,
+      "eta_sq_question": 0.2732043394224913,
+      "eta_sq_interaction": 0.6236087071102232
+    },
+    "2": {
+      "eta_sq_prompt": 0.1020064812722893,
+      "eta_sq_question": 0.2765555917482478,
+      "eta_sq_interaction": 0.6214380835728062
+    },
+    "3": {
+      "eta_sq_prompt": 0.0991260800932975,
+      "eta_sq_question": 0.28065235089136,
+      "eta_sq_interaction": 0.6202218489079313
+    },
+    "4": {
+      "eta_sq_prompt": 0.1013280822775339,
+      "eta_sq_question": 0.2845971133112242,
+      "eta_sq_interaction": 0.6140751611679884
+    },
+    "5": {
+      "eta_sq_prompt": 0.1084542879071515,
+      "eta_sq_question": 0.2731653052757055,
+      "eta_sq_interaction": 0.6183806269133547
+    },
+    "6": {
+      "eta_sq_prompt": 0.1178108720689704,
+      "eta_sq_question": 0.2773933360471008,
+      "eta_sq_interaction": 0.6047959646176133
+    },
+    "7": {
+      "eta_sq_prompt": 0.1247663353572075,
+      "eta_sq_question": 0.2755059899057749,
+      "eta_sq_interaction": 0.5997278879507585
+    },
+    "8": {
+      "eta_sq_prompt": 0.1198545524157591,
+      "eta_sq_question": 0.2700448894173142,
+      "eta_sq_interaction": 0.6101007102501083
+    },
+    "9": {
+      "eta_sq_prompt": 0.0918218176601683,
+      "eta_sq_question": 0.2655567963637595,
+      "eta_sq_interaction": 0.6426216366695716
+    },
+    "10": {
+      "eta_sq_prompt": 0.0981972262213318,
+      "eta_sq_question": 0.2480737229127656,
+      "eta_sq_interaction": 0.6537294612435175
+    },
+    "11": {
+      "eta_sq_prompt": 0.0747135765506966,
+      "eta_sq_question": 0.261755431188033,
+      "eta_sq_interaction": 0.6635314007133539
+    },
+    "12": {
+      "eta_sq_prompt": 0.0746978310437612,
+      "eta_sq_question": 0.2735210971241944,
+      "eta_sq_interaction": 0.6517813484930368
+    },
+    "13": {
+      "eta_sq_prompt": 0.0785108294942002,
+      "eta_sq_question": 0.2848875185091262,
+      "eta_sq_interaction": 0.6366020148991972
+    },
+    "14": {
+      "eta_sq_prompt": 0.0812720745689584,
+      "eta_sq_question": 0.3003192384440723,
+      "eta_sq_interaction": 0.6184092561089006
+    },
+    "15": {
+      "eta_sq_prompt": 0.088106697825966,
+      "eta_sq_question": 0.2968042850078929,
+      "eta_sq_interaction": 0.6150894608515113
+    },
+    "16": {
+      "eta_sq_prompt": 0.0875831976929958,
+      "eta_sq_question": 0.2966741611277776,
+      "eta_sq_interaction": 0.6157432531699935
+    },
+    "17": {
+      "eta_sq_prompt": 0.0933718730207119,
+      "eta_sq_question": 0.2949865721394308,
+      "eta_sq_interaction": 0.611642162899098
+    },
+    "18": {
+      "eta_sq_prompt": 0.1037767247199701,
+      "eta_sq_question": 0.3167381208129261,
+      "eta_sq_interaction": 0.5794856542267318
+    },
+    "19": {
+      "eta_sq_prompt": 0.0924024048949122,
+      "eta_sq_question": 0.2990447132844919,
+      "eta_sq_interaction": 0.6085532606277402
+    },
+    "20": {
+      "eta_sq_prompt": 0.0853878507570799,
+      "eta_sq_question": 0.3130867472561142,
+      "eta_sq_interaction": 0.6015259162308854
+    },
+    "21": {
+      "eta_sq_prompt": 0.1129198529138997,
+      "eta_sq_question": 0.3304727632105125,
+      "eta_sq_interaction": 0.5566078345694935
+    },
+    "22": {
+      "eta_sq_prompt": 0.0763527281821177,
+      "eta_sq_question": 0.3632864468694921,
+      "eta_sq_interaction": 0.5603612232683547
+    },
+    "23": {
+      "eta_sq_prompt": 0.0535895620183616,
+      "eta_sq_question": 0.3514167124102595,
+      "eta_sq_interaction": 0.5949942497719086
+    },
+    "24": {
+      "eta_sq_prompt": 0.0755531042273032,
+      "eta_sq_question": 0.3844728795635019,
+      "eta_sq_interaction": 0.5399745435295021
+    },
+    "25": {
+      "eta_sq_prompt": 0.0657682738219653,
+      "eta_sq_question": 0.3825320354816881,
+      "eta_sq_interaction": 0.5516999885096908
+    },
+    "26": {
+      "eta_sq_prompt": 0.0920184031806665,
+      "eta_sq_question": 0.3607317787648816,
+      "eta_sq_interaction": 0.5472500151762272
+    },
+    "27": {
+      "eta_sq_prompt": 0.0626448962153762,
+      "eta_sq_question": 0.370048052758184,
+      "eta_sq_interaction": 0.5673076518163831
+    },
+    "28": {
+      "eta_sq_prompt": 0.1279042261837512,
+      "eta_sq_question": 0.3636186827224319,
+      "eta_sq_interaction": 0.5084775819370991
+    },
+    "29": {
+      "eta_sq_prompt": 0.1143599594919492,
+      "eta_sq_question": 0.3543594455278793,
+      "eta_sq_interaction": 0.5312813039213584
+    },
+    "30": {
+      "eta_sq_prompt": 0.1572150121909835,
+      "eta_sq_question": 0.3646014622155285,
+      "eta_sq_interaction": 0.4781842626626085
+    },
+    "31": {
+      "eta_sq_prompt": 0.181496337537887,
+      "eta_sq_question": 0.3546032204300987,
+      "eta_sq_interaction": 0.4639014595301807
+    },
+    "32": {
+      "eta_sq_prompt": 0.1547940957865447,
+      "eta_sq_question": 0.3685817257618426,
+      "eta_sq_interaction": 0.4766255242213593
+    },
+    "33": {
+      "eta_sq_prompt": 0.1366912561739819,
+      "eta_sq_question": 0.3700415710849704,
+      "eta_sq_interaction": 0.4932687332378037
+    },
+    "34": {
+      "eta_sq_prompt": 0.1453457471909847,
+      "eta_sq_question": 0.3630378656674862,
+      "eta_sq_interaction": 0.4916180022368303
+    },
+    "35": {
+      "eta_sq_prompt": 0.1620190606776405,
+      "eta_sq_question": 0.3609305954540889,
+      "eta_sq_interaction": 0.4770519617375803
+    },
+    "36": {
+      "eta_sq_prompt": 0.191889289481013,
+      "eta_sq_question": 0.3475666369251926,
+      "eta_sq_interaction": 0.4605455614552805
+    },
+    "37": {
+      "eta_sq_prompt": 0.1716878846192632,
+      "eta_sq_question": 0.3528923131315408,
+      "eta_sq_interaction": 0.4754215966941874
+    },
+    "38": {
+      "eta_sq_prompt": 0.149928304374096,
+      "eta_sq_question": 0.4024660205212194,
+      "eta_sq_interaction": 0.4476075185738348
+    },
+    "39": {
+      "eta_sq_prompt": 0.1595230652787793,
+      "eta_sq_question": 0.4060039368632505,
+      "eta_sq_interaction": 0.4344747308109727
+    },
+    "40": {
+      "eta_sq_prompt": 0.1683836284130796,
+      "eta_sq_question": 0.3991650842344729,
+      "eta_sq_interaction": 0.432453053632739
+    },
+    "41": {
+      "eta_sq_prompt": 0.1424665297159453,
+      "eta_sq_question": 0.4101931686685808,
+      "eta_sq_interaction": 0.4473421741583481
+    },
+    "42": {
+      "eta_sq_prompt": 0.1421909564298787,
+      "eta_sq_question": 0.4151594917293997,
+      "eta_sq_interaction": 0.4426514274802753
+    },
+    "43": {
+      "eta_sq_prompt": 0.1540994805009719,
+      "eta_sq_question": 0.4138046954599853,
+      "eta_sq_interaction": 0.4320977507451621
+    },
+    "44": {
+      "eta_sq_prompt": 0.160053476488189,
+      "eta_sq_question": 0.4093558548898739,
+      "eta_sq_interaction": 0.4305925979905569
+    },
+    "45": {
+      "eta_sq_prompt": 0.1840602406551588,
+      "eta_sq_question": 0.3850048513296597,
+      "eta_sq_interaction": 0.4309366734120101
+    },
+    "46": {
+      "eta_sq_prompt": 0.1903407468320623,
+      "eta_sq_question": 0.3744912520225516,
+      "eta_sq_interaction": 0.4351697712073084
+    },
+    "47": {
+      "eta_sq_prompt": 0.1966107410469067,
+      "eta_sq_question": 0.3631916306571589,
+      "eta_sq_interaction": 0.4401994031335681
+    },
+    "48": {
+      "eta_sq_prompt": 0.2009260456269137,
+      "eta_sq_question": 0.3578581776741824,
+      "eta_sq_interaction": 0.4412175548669792
+    },
+    "49": {
+      "eta_sq_prompt": 0.2030723653776134,
+      "eta_sq_question": 0.3524405901380597,
+      "eta_sq_interaction": 0.4444889001722008
+    },
+    "50": {
+      "eta_sq_prompt": 0.1858793590557588,
+      "eta_sq_question": 0.3626712334340823,
+      "eta_sq_interaction": 0.4514511991201581
+    },
+    "51": {
+      "eta_sq_prompt": 0.1808152295677806,
+      "eta_sq_question": 0.3661521016552748,
+      "eta_sq_interaction": 0.4530344229614365
+    },
+    "52": {
+      "eta_sq_prompt": 0.174523786597065,
+      "eta_sq_question": 0.3692283695137297,
+      "eta_sq_interaction": 0.4562496088498031
+    },
+    "53": {
+      "eta_sq_prompt": 0.171216567344003,
+      "eta_sq_question": 0.3640048523281144,
+      "eta_sq_interaction": 0.4647803435271955
+    },
+    "54": {
+      "eta_sq_prompt": 0.1730451047173964,
+      "eta_sq_question": 0.3636226393678866,
+      "eta_sq_interaction": 0.4633339992684996
+    },
+    "55": {
+      "eta_sq_prompt": 0.1728870083332096,
+      "eta_sq_question": 0.361339044314943,
+      "eta_sq_interaction": 0.4657755475942635
+    },
+    "56": {
+      "eta_sq_prompt": 0.1798213749293564,
+      "eta_sq_question": 0.3472914397678346,
+      "eta_sq_interaction": 0.4728888399888197
+    },
+    "57": {
+      "eta_sq_prompt": 0.168904253307238,
+      "eta_sq_question": 0.3499708720804353,
+      "eta_sq_interaction": 0.4811266477326868
+    },
+    "58": {
+      "eta_sq_prompt": 0.1648985955272808,
+      "eta_sq_question": 0.353489261600655,
+      "eta_sq_interaction": 0.4816138442161291
+    },
+    "59": {
+      "eta_sq_prompt": 0.150718261237833,
+      "eta_sq_question": 0.3604542216753256,
+      "eta_sq_interaction": 0.4888294089103656
+    },
+    "60": {
+      "eta_sq_prompt": 0.1608029803838897,
+      "eta_sq_question": 0.3557824172652374,
+      "eta_sq_interaction": 0.4834165173831373
+    },
+    "61": {
+      "eta_sq_prompt": 0.1617579523739327,
+      "eta_sq_question": 0.352021629170628,
+      "eta_sq_interaction": 0.4862225905100399
+    },
+    "62": {
+      "eta_sq_prompt": 0.1409991985982919,
+      "eta_sq_question": 0.4258109696752781,
+      "eta_sq_interaction": 0.433191554410949
+    }
+  }
+}

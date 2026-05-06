@@ -14,8 +14,9 @@ CLAUDE.local.md
 # Heavy artifacts: regenerate via the pipeline scripts.
 activations/
 vectors/
+
+# Results — include lightweight summaries, exclude heavy per-sample data.
 results/diagnostics/
-results/optuna/*/trial_history_*.csv
 results/steering_evaluations/**/*_per_sample.csv
 
 # Build / editor noise.
@@ -24,4 +25,3 @@ dist/
 .cache/
 .idea/
 .vscode/
-results/
