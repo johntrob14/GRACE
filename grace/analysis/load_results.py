@@ -43,14 +43,25 @@ def load_optuna_history(
     rows: list[dict] = []
     for path in sorted(out_dir.glob("trial_history_seed*.csv")):
         seed = int(path.stem.split("seed")[-1])
+        best_so_far = float("-inf")
         with path.open() as f:
             reader = csv.DictReader(f)
             for row in reader:
                 row["seed"] = seed
                 row["trial"] = int(row["trial"])
-                row["layer"] = int(row["layer"]) if row["layer"] not in ("", "None") else None
-                row["coef"] = float(row["coef"]) if row["coef"] not in ("", "None") else None
-                row["value"] = float(row["value"]) if row["value"] not in ("", "None") else None
-                row["best_value_so_far"] = float(row["best_value_so_far"]) if row["best_value_so_far"] not in ("", "None") else None
+                row["layer"] = int(row["layer"]) if row.get("layer") not in ("", "None", None) else None
+                row["coef"] = float(row["coef"]) if row.get("coef") not in ("", "None", None) else None
+                # Support both old format (value/best_value_so_far) and new (steerability)
+                if "value" in row:
+                    row["value"] = float(row["value"]) if row["value"] not in ("", "None") else None
+                elif "steerability" in row:
+                    row["value"] = float(row["steerability"]) if row["steerability"] not in ("", "None") else None
+                if "best_value_so_far" in row:
+                    row["best_value_so_far"] = float(row["best_value_so_far"]) if row["best_value_so_far"] not in ("", "None") else None
+                else:
+                    # Compute running max from value
+                    if row.get("value") is not None:
+                        best_so_far = max(best_so_far, row["value"])
+                    row["best_value_so_far"] = best_so_far if best_so_far > float("-inf") else None
                 rows.append(row)
     return rows
